@@ -19,6 +19,7 @@
 )
 
 ;QUESTION 2
+;flatten returns all elements from source-list as a list with no nesting
 (defun flatten (source-list)
     (if (atom source-list)
         (cons source-list nil)
@@ -28,12 +29,6 @@
         )
     )
 )
-
-#|
-(defun atom-not-nil (query-list)
-    (and (atom query-list) (not (null query-list)))
-)
-|#
 
 ;true iff one element in list, error if passed atom
 (defun one-element (query-list)
