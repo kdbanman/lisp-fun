@@ -5,18 +5,14 @@
         nil
         (if (equals-first-element query-element query-list)
             t
-            (xmember query-element (cdr query-list))
-        )
-    )
-)
+            (xmember query-element (cdr query-list)))))
 
 ;true iff query-element equals the first element of query-list
 (defun equals-first-element (query-element query-list)
     (if (atom query-list)
         nil
-        (equal query-element (car query-list))
-    )
-)
+        (equal query-element (car query-list))))
+
 
 ;QUESTION 2
 ;flatten returns all elements from source-list as a list with no nesting
@@ -24,19 +20,37 @@
     (if (atom source-list)
         (cons source-list nil)
         (if (one-element source-list)
-            (append (flatten (car source-list)) ())
-            (append (flatten (car source-list)) (flatten (cdr source-list)))
-        )
-    )
-)
+            (append 
+                (flatten (car source-list))
+                ())
+            (append
+                (flatten (car source-list))
+                (flatten (cdr source-list))))))
 
 ;true iff one element in list, error if passed atom
 (defun one-element (query-list)
     (cond ((null query-list) nil)
           ((null (cdr query-list)) T)
-          (T nil)
-    )
-)
+          (T nil)))
+
+
+;QUESTION 3
+;interleaves two lists into a single list
+(defun mix (list-1 list-2)
+    (cond
+        ((null list-1) list-2)
+        ((null list-2) list-1)
+        (T (mix-nonempty list-1 list-2))))
+
+;interleaves two nonempty lists into a single list
+(defun mix-nonempty (list-1 list-2)
+  (append 
+    (list
+      (car list-1) 
+      (car list-2))
+    (mix 
+      (cdr list-1) 
+      (cdr list-2))))
 
 ;; TESTS ;;
 (defun test-all (test-list)
@@ -139,3 +153,15 @@
         (equal (flatten '(a (b c) (d ((e)) f))) '(a b c d e f))
     )
 ))
+
+;Question 3 Tests;
+(test-all 
+  '(
+    (should-true
+      (equal (mix '(a b c) '(1 2)) '(a 1 b 2 c)))
+    (should-true
+      (equal (mix '(a) nil) '(a)))
+    (should-true
+      (equal (mix nil nil) nil))
+    (should-true
+      (equal (mix '(a nil) '(1 2 3 4)) '(a 1 nil 2 3 4)))))
