@@ -52,6 +52,16 @@
       (cdr list-1) 
       (cdr list-2))))
 
+
+;QUESTION 4
+
+
+
+;QUESTION 5
+;
+;5.1
+
+
 ;; TESTS ;;
 (defun test-all (test-list)
     (if (null test-list)
@@ -164,4 +174,33 @@
     (should-true
       (equal (mix nil nil) nil))
     (should-true
-      (equal (mix '(a nil) '(1 2 3 4)) '(a 1 nil 2 3 4)))))
+      (equal (mix '(a nil) '(1 2 3 4)) '(a 1 nil 2 3 4)))
+    (should-true
+      (equal (mix '(a b c) '(d e f)) '(a d b e c f)))
+    (should-true
+      (equal (mix '(1 2 3) '(a)) '(1 a 2 3)))
+    (should-true
+      (equal (mix '((a) (b c)) '(d e f g h)) '((a) d (b c) e f g h)))
+    (should-true
+      (equal (mix '(1 2 3) nil) '(1 2 3)))
+    (should-true
+      (equal (mix '(1 2 3) '(nil)) '(1 nil 2 3)))))
+
+;Question 4 Tests;
+(test-all
+  '(
+    (should-true
+      (equal (split '(1 2 3 4 5 6)) '((1 3 5) (2 4 6))))
+    (should-true
+      (equal (split '((a) (b c) (d e f) g h)) '(((a) (d e f) h) ((b c) g))))
+    (should-true
+      (equal (split '()) '(nil nil)))
+    (should-true
+      (equal (split (mix '(a b c) '(d e f))) '((a b c) (d e f))))
+    (should-true
+      (equal (split (mix '(1 2 3) '(4 5))) '((1 2 3) (4 5))))
+    (should-true
+      (equal (let ((L '(a d b e c f))) (mix (car (split L)) (cadr (split L)))) '(a d b e c f)))
+    (should-true
+      (equal (let ((L nil)) (mix (car (split L)) (cadr (split L)))) nil))
+    ))
