@@ -14,6 +14,7 @@
         (equal query-element (car query-list))))
 
 
+
 ;QUESTION 2
 ;flatten returns all elements from source-list as a list with no nesting
 (defun flatten (source-list)
@@ -53,13 +54,29 @@
       (cdr list-2))))
 
 
+
 ;QUESTION 4
+;split a list into its the odd- and even-indexed elements
+(defun split (source-list)
+  (split-from source-list () ()))
 
+;split source list, prepending the results to left-list and right-list
+(defun split-from (source-list left-list right-list)
+  (cond 
+    ((null source-list) (list left-list right-list))
+    ((null (cdr source-list)) (split-from 
+                                (cdr source-list)
+                                (first-to-end source-list left-list)
+                                right-list))
+    (T (split-from
+         (cddr source-list)
+         (first-to-end source-list left-list)
+         (first-to-end (cdr source-list) right-list)))))
 
+;returns target-list with the first element of source-list appended
+(defun first-to-end (source-list target-list)
+  (append target-list (list (car source-list))))
 
-;QUESTION 5
-;
-;5.1
 
 
 ;; TESTS ;;
@@ -200,7 +217,9 @@
     (should-true
       (equal (split (mix '(1 2 3) '(4 5))) '((1 2 3) (4 5))))
     (should-true
-      (equal (let ((L '(a d b e c f))) (mix (car (split L)) (cadr (split L)))) '(a d b e c f)))
+      (equal 
+        (let ((L '(a d b e c f))) (mix (car (split L)) (cadr (split L)))) 
+        '(a d b e c f)))
     (should-true
       (equal (let ((L nil)) (mix (car (split L)) (cadr (split L)))) nil))
     ))
