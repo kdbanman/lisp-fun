@@ -79,6 +79,37 @@
 
 
 
+;QUESTION 5
+;
+;5.1)
+;
+;
+;5.2)
+
+
+
+;QUESTION 6
+;returns a sublist of query-list whose sum is equal to target, nil if impossible
+;
+;Approach:
+;Builds all possible lesser lists until one with sum equal to target is found.
+;A lesser list is a sublist whose sum is less than or equal to the target.
+(defun subset-sum (query-list target)
+  (sort query-list '<)
+  (sorted-subset-sum query-list ()  target))
+
+(defun sorted-subset-sum (sorted-list lesser-list target)
+  (cond 
+    ((null sorted-list) nil)
+    ((eq (sum lesser-list) target) lesser-list)
+    ((> (sum lesser-list) target) nil)
+    ;Now know that lesser-list has smaller sum than target.
+    ;Recurse with another element popped from sorted-list to lesser-list.
+    ;Ensure that recursion pattern builds all possible lesser lists.
+    )
+  )
+
+
 ;; TESTS ;;
 (defun test-all (test-list)
     (if (null test-list)
