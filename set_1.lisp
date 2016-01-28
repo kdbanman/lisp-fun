@@ -90,30 +90,56 @@
 
 ;QUESTION 6
 ;returns a sublist of query-list whose sum is equal to target, nil if impossible
+(defun subsetsum (query-list target)
+  (my-reverse (accumulated-subsetsum ()  query-list target)))
+
+;Same as subsetsum, but with an accumulator called sublist (start as nil).
+;The returned sublist will be in reverse order compared to the query-list.
 ;
 ;Approach:
-;Builds all possible lesser lists until one with sum equal to target is found.
-;A lesser list is a sublist whose sum is less than or equal to the target.
-(defun subset-sum (query-list target)
-  (accumulated-subset-sum ()  query-list target))
-
-(defun accumulated-subset-sum (sublist query-list target)
+;- Build candidate sublists and recurse on them, reducing the target according
+;  to each candidate.
+;- If a candidate's construction reduces the target to zero, then the candidate
+;  is returned as an answer.
+;
+;Optimizations:
+;- Candidates that can no longer be built upon to find the target are ruled
+;  out early by returning nil instead of recursing further.
+;- Recursion is performed in tail-recursive positions.
+(defun accumulated-subsetsum (sublist query-list target)
   (cond
     ((= target 0) sublist)
-    ((not (sum-greater query-list target)) nil)
+    ;((not (sum-greater query-list target)) nil)
+    ((> target (sum query-list)) nil)
     ((or (< target 0) (null query-list)) nil)
     (T (let 
-         ((with-first
-            (accumulated-subset-sum
+         ((subset-with-head
+            (accumulated-subsetsum
               (cons (car query-list) sublist) 
               (cdr query-list) 
               (- target (car query-list)))))
-         (if (null with-first)
-           (accumulated-subset-sum
+         (if (not (null subset-with-head))
+           subset-with-head
+           (accumulated-subsetsum
              sublist 
              (cdr query-list) 
              target)
-           with-first)))))
+           )))))
+
+;returns a reversed version of query-list without affecting nested lists
+(defun my-reverse (query-list)
+  (accumulated-reverse query-list ()))
+
+;efficiently uses an accumulator to reverse the query-list
+(defun accumulated-reverse (query-list reversed)
+  (if (null query-list) reversed
+    (accumulated-reverse (cdr query-list) (cons (car query-list) reversed))))
+
+;returns the sum of a flat, numerical query-list
+(defun sum (query-list)
+  (if (null query-list)
+    0
+    (+ (car query-list) (sum (cdr query-list)))))
 
 ;true if the sum of query-list (positive integers) is larger than the target
 (defun sum-greater (query-list target)
@@ -270,3 +296,32 @@
     (should-true
       (equal (let ((L nil)) (mix (car (split L)) (cadr (split L)))) nil))
     ))
+
+;Question 6 Tests;
+(test-all
+    '(
+      (should-true
+        (equal (subsetsum '(1) 1) '(1)))
+      (should-true
+        (equal (subsetsum '(1) 2) nil))
+      (should-true
+        (equal (subsetsum '(1 2) 2) '(2)))
+      (should-true
+        (equal (subsetsum '(1 2) 3) '(1 2)))
+      (should-true
+        (equal (subsetsum '(1 2 5 3 4) 15) '(1 2 5 3 4)))
+      (should-true
+        (equal (subsetsum '(1 2 3) 5) '(2 3)))
+      (should-true
+        (equal (subsetsum '(1 5 3) 2) nil))
+      (should-true
+        (equal (subsetsum '(1 16 2 8 4) 29) '(1 16 8 4)))
+      (should-true
+        (equal (subsetsum '(1 1 5 6 8) 10) '(1 1 8)))
+      (should-true
+        (equal (subsetsum '(1 10 100 1000 10000) 5) nil)))
+    
+  )
+
+;Question 6 Hard Tests;
+
