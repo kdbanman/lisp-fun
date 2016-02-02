@@ -1,5 +1,5 @@
 (load "testy.lisp")
-(load "set_1.lisp")
+(load "starter_problems.lisp")
 
 ;Question 1 Tests;
 (test-all '(
