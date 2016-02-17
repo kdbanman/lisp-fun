@@ -17,7 +17,7 @@
     (should-equal
       (parse-fname '(fun x y = (+ x y))) 'fun)
     (should-equal
-      (parse-args '(fun x y z = (+ x y))) '(x y z))
+      (parse-params '(fun x y z = (+ x y))) '(x y z))
     (should-true
       (signature-equal 'fun '(1 2 3) '(fun x y z = (+ x y))))
     ))
