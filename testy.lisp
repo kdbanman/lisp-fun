@@ -24,3 +24,9 @@
 (defun should-false (predicate)
     (should-true (not predicate))
 )
+
+(defun should-equal (expr1 expr2)
+  (should-true 
+    (equal
+      expr1
+      expr2)))
