@@ -27,12 +27,11 @@
     ((eq fname 'or) (fl-or args program))
     ((eq fname 'not) (fl-not args program))
 
-    ;TODO user defined functions
-    
-    ;fname is not a defined function - return as list
-    (T (cons fname args))
-    )
-  )
+    ;handle user defined functions
+    ((fl-function-defined fname args program) (fl-apply fname args program))
+
+    ;fname is not a function - return expression as list
+    (T (cons fname args))))
 
 #|
 |
@@ -116,3 +115,59 @@
 
 (defun fl-not (args program)
   (not (fl-interp (car args) program)))
+
+#|
+|
+| UTILITY FUNCTIONS
+|
+||||||||#
+
+
+(defun fl-function-defined (fname args program)
+  
+  )
+
+(defun fl-apply (fname args program)
+  
+  )
+
+;from the supplied program, return the body of a function identified by its name and argument count
+(defun fl-body (fname args program)
+  
+  )
+
+#|
+|
+| PARSING FUNCTIONS
+|
+||||||||#
+
+
+;from a valid FL program, assemble a list of function definitions structured as returned from fl-parse-definition
+(defun fl-parse-program (raw-program)
+  (mapcar fl-parse-definition raw-program))
+
+;from a valid FL definition, assemble a function definition structured as follows:  ((fname args) body) 
+(defun fl-parse-definition (raw-definition)
+  (list (fl-parse-signature raw-definition) (fl-parse-body raw-definition)))
+
+(defun fl-parse-signature (raw-definition)
+  (list (fl-parse-fname raw-definition) (fl-parse-args raw-definition)))
+
+(defun fl-parse-fname (raw-definition)
+  (car raw-definition))
+
+(defun fl-parse-args (raw-definition)
+  (elements-before-= (cdr raw-definition)))
+
+(defun fl-parse-body (raw-definition)
+  (car (elements-after-= raw-definition)))
+
+(defun elements-after-= (query-list)
+  (reverse (elements-before-= (reverse query-list))))
+
+(defun elements-before-= (query-list)
+  (cond
+    ((null query-list) nil)
+    ((eq '= (car query-list)) nil)
+    (T (cons (car query-list) (elements-before-= (cdr query-list))))))
