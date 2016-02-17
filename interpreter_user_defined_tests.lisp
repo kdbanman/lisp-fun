@@ -71,9 +71,12 @@
       13)
     (should-equal
       (fl-interp
-        '(fib (fib 6))
+        '(fib (fib (count (1 2 3 4 5 6))))
         '((fib n = (if (< n 2)
                          n
-                         (+ (fib (- n 1)) (fib (- n 2)))))))
+                         (+ (fib (- n 1)) (fib (- n 2)))))
+          (count L = (if (null L)
+                         0
+                         (+ 1 (count (rest L)))))))
       21)
     ))
