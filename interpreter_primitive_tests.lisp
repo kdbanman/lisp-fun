@@ -37,6 +37,17 @@
       (fl-interp '(rest (a b c)) nil)
       '(b c))
 
+    ;cons
+    (should-equal
+      (fl-interp '(cons a ()) nil)
+      '(a))
+    (should-equal
+      (fl-interp '(cons a (b)) nil)
+      '(a b))
+    (should-equal
+      (fl-interp '(cons nil nil) nil)
+      '(nil))
+
     ;null
     (should-true
       (fl-interp '(null nil) nil))

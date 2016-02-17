@@ -12,6 +12,7 @@
     ((eq fname 'if) (fl-if args program))
     ((eq fname 'first) (fl-first args program))
     ((eq fname 'rest) (fl-rest args program))
+    ((eq fname 'cons) (fl-cons args program))
     ((eq fname 'null) (fl-null args program))
     ((eq fname 'atom) (fl-atom args program))
     ((eq fname 'number) (fl-number args program))
@@ -28,10 +29,15 @@
     ((eq fname 'not) (fl-not args program))
 
     ;handle user defined functions
-    ((function-defined fname args program) (apply-function fname args program))
+    ((function-defined fname args program) (fl-interp
+                                             (apply-function
+                                               fname
+                                               args
+                                               program)
+                                             program))
 
-    ;fname is not a function - return expression as list
-    (T (cons fname args))))
+    ;fname is not a function - return expression as list with evaluated elements
+    (T (cons fname (fl-interp args program)))))
 
 #|
 |
@@ -49,6 +55,11 @@
 
 (defun fl-rest (args program)
   (cdr (fl-interp (car args) program)))
+
+(defun fl-cons (args program)
+  (cons
+    (fl-interp (car args) program)
+    (fl-interp (cadr args) program)))
 
 (defun fl-null (args program)
   (null (fl-interp (car args) program)))
@@ -122,42 +133,61 @@
 |
 ||||||||#
 
-
+; Return true if the function exists in `program`.  The function is identified
+; by name `fname` and argument list `args`.
 (defun function-defined (fname args program)
   (cond
     ((null program) nil)
     ((signature-equal fname args (car program)) T)
     (T (function-defined fname args (cdr program)))))
 
-(defun locate-function (fname args program)
+; Return the function definition if the function exists in `program`.  The
+; function is identified by name `fname` and argument list `args`.  The returned
+; definition is in FL syntax.
+(defun locate-definition (fname args program)
   (cond
     ((null program) nil)
     ((signature-equal fname args (car program)) (car program))
-    (T (function-defined fname args (cdr program)))))
+    (T (locate-definition fname args (cdr program)))))
 
-(defun apply-function (fname args definition)
-  
-  )
+; Return the result of applying the arguments in `args` to the function named
+; `fname`, which is identified in the list of definitions in `program`.
+(defun apply-function (fname args program)
+    (substitute-args
+      args
+      (locate-definition fname args program)))
 
+; Within the supplied definition, substitute each argument from the `args` list
+; for the respective parameter in the definition.
+(defun substitute-args (args definition)
+    (applicative-reduce
+      args
+      (parse-params definition)
+      (parse-body definition)))
+
+; For each parameter in `params`, replace the parameter in `body` with its
+; respective  argument from `args`.
 (defun applicative-reduce (args params body)
-  
-  )
+  (if (null args)
+    body
+    (recursive-replace
+      (car params)
+      (car args)
+      (applicative-reduce
+        (cdr args) 
+        (cdr params)
+        body))))
 
-;From the supplied program, call back for the function identified by the passed name and argument count.
-;The callback is called with two argemunts: (params body)
-(defun call-with-function (fname args program callback)
-  (if (null program)
-    nil
-    (if (signature-equal fname args (car program))
-      (funcall
-        callback 
-        (parse-params (car program))
-        (parse-body (car program)))
-      (call-with-function
-        fname
-        args
-        (cdr program)
-        callback))))
+; Recursively traverse the list `body` at all levels of nesting, replacing
+; all occurences of `name` with `value`.
+(defun recursive-replace (name value body)
+  (cond
+    ((null body) nil)
+    ((eql name body) value)
+    ((atom body) body)
+    (T (cons
+         (recursive-replace name value (car body))
+         (recursive-replace name value (cdr body))))))
 
 #|
 |
