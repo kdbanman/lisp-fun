@@ -28,7 +28,7 @@
     ((eq fname 'not) (fl-not args program))
 
     ;handle user defined functions
-    ((fl-function-defined fname args program) (fl-apply fname args program))
+    ((function-defined fname args program) (apply-function fname args program))
 
     ;fname is not a function - return expression as list
     (T (cons fname args))))
@@ -123,18 +123,41 @@
 ||||||||#
 
 
-(defun fl-function-defined (fname args program)
+(defun function-defined (fname args program)
+  (cond
+    ((null program) nil)
+    ((signature-equal fname args (car program)) T)
+    (T (function-defined fname args (cdr program)))))
+
+(defun locate-function (fname args program)
+  (cond
+    ((null program) nil)
+    ((signature-equal fname args (car program)) (car program))
+    (T (function-defined fname args (cdr program)))))
+
+(defun apply-function (fname args definition)
   
   )
 
-(defun fl-apply (fname args program)
+(defun applicative-reduce (args params body)
   
   )
 
-;from the supplied program, return the body of a function identified by its name and argument count
-(defun fl-body (fname args program)
-  
-  )
+;From the supplied program, call back for the function identified by the passed name and argument count.
+;The callback is called with two argemunts: (params body)
+(defun call-with-function (fname args program callback)
+  (if (null program)
+    nil
+    (if (signature-equal fname args (car program))
+      (funcall
+        callback 
+        (parse-params (car program))
+        (parse-body (car program)))
+      (call-with-function
+        fname
+        args
+        (cdr program)
+        callback))))
 
 #|
 |
@@ -142,26 +165,19 @@
 |
 ||||||||#
 
+(defun signature-equal (fname args definition)
+  (and 
+    (eq fname (parse-fname definition))
+    (= (size args) (size (parse-params definition)))))
 
-;from a valid FL program, assemble a list of function definitions structured as returned from fl-parse-definition
-(defun fl-parse-program (raw-program)
-  (mapcar fl-parse-definition raw-program))
+(defun parse-fname (definition)
+  (car definition))
 
-;from a valid FL definition, assemble a function definition structured as follows:  ((fname args) body) 
-(defun fl-parse-definition (raw-definition)
-  (list (fl-parse-signature raw-definition) (fl-parse-body raw-definition)))
+(defun parse-params (definition)
+  (elements-before-= (cdr definition)))
 
-(defun fl-parse-signature (raw-definition)
-  (list (fl-parse-fname raw-definition) (fl-parse-args raw-definition)))
-
-(defun fl-parse-fname (raw-definition)
-  (car raw-definition))
-
-(defun fl-parse-args (raw-definition)
-  (elements-before-= (cdr raw-definition)))
-
-(defun fl-parse-body (raw-definition)
-  (car (elements-after-= raw-definition)))
+(defun parse-body (definition)
+  (car (elements-after-= definition)))
 
 (defun elements-after-= (query-list)
   (reverse (elements-before-= (reverse query-list))))
@@ -171,3 +187,6 @@
     ((null query-list) nil)
     ((eq '= (car query-list)) nil)
     (T (cons (car query-list) (elements-before-= (cdr query-list))))))
+
+(defun size (query-list)
+  (if (null query-list) 0 (+ 1 (size (cdr query-list)))))
