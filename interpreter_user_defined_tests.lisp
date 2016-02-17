@@ -1,9 +1,72 @@
 (load "testy.lisp")
 (load "interpreter.lisp")
 
-;Primitive Tests;
+;User Defined Tests;
 (test-all 
   '(
-    (should-false
-      (fl-interp '(if nil T nil) nil))
+    (should-equal
+      (fl-interp
+        '(f (g 2) (g 1)) 
+        '((g X = (+ 1 X))
+          (f X Y = (+ X Y))))
+      5)
+    (should-equal
+      (fl-interp
+        '(count (1 2 3)) 
+        '((count L = (if (null L)
+                         0
+                         (+ 1 (count (rest L)))))))
+      3)
+    (should-equal
+      (fl-interp
+        '(count (1 (2 a) nil 3)) 
+        '((count L = (if (null L)
+                         0
+                         (+ 1 (count (rest L)))))))
+      4)
+    (should-equal
+      (fl-interp
+        '(reverse (1 2 3))
+        '((reverse X =  (if (null X) 
+                nil
+                (append (reverse (rest X)) 
+                        (cons (first X) nil))))
+
+          (append X Y = (if (null X) 
+                          Y
+                          (cons (first X) (append (rest X) Y))))))
+      '(3 2 1))
+    (should-equal
+      (fl-interp
+        '(reverse ((1 a b) 2 3))
+        '((reverse X = (if (null X) 
+                         nil
+                         (append (reverse (rest X)) 
+                                 (cons (first X) nil))))
+
+          (append X Y = (if (null X) 
+                          Y
+                          (cons (first X) (append (rest X) Y))))))
+      '(3 2 (1 a b)))
+    (should-equal
+      (fl-interp
+        '(fib 1)
+        '((fib n = (if (< n 2)
+                         n
+                         (+ (fib (- n 1)) (fib (- n 2)))))))
+      1)
+    (should-equal
+      (fl-interp
+        '(fib 2)
+        '((fib n = (if (< n 2)
+                         n
+                         (+ (fib (- n 1)) (fib (- n 2)))))))
+      1)
+    (should-equal
+      (fl-interp
+        '(fib 7)
+        '((fib n = (if (< n 2)
+                         n
+                         (+ (fib (- n 1)) (fib (- n 2)))))))
+      13)
     ))
