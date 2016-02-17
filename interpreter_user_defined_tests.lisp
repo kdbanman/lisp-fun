@@ -69,4 +69,11 @@
                          n
                          (+ (fib (- n 1)) (fib (- n 2)))))))
       13)
+    (should-equal
+      (fl-interp
+        '(fib (fib 6))
+        '((fib n = (if (< n 2)
+                         n
+                         (+ (fib (- n 1)) (fib (- n 2)))))))
+      21)
     ))
