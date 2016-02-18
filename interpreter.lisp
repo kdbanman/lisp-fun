@@ -1,10 +1,14 @@
-;named functions can use mapcar for substitution
-;
-;closure and context 'replace' AOR and NOR
-
 (defun fl-interp (expr program)
-    (if (atom expr) expr
+    (if (atom expr)
+      expr
       (fl-eval (car expr) (cdr expr) program)))
+
+(defun fl-interp-all (expressions program)
+  (if (null expressions)
+    nil
+    (cons
+      (fl-interp (car expressions) program)
+      (fl-interp-all (cdr expressions) program))))
 
 (defun fl-eval (fname args program)
   (cond
@@ -32,12 +36,15 @@
     ((function-defined fname args program) (fl-interp
                                              (apply-function
                                                fname
-                                               args
+                                               (fl-interp-all args program)
                                                program)
                                              program))
 
-    ;fname is not a function - return expression as list with evaluated elements
-    (T (cons fname (fl-interp args program)))))
+    ;fname is not a function - return expression reconstructed from function
+    ;name and argument list
+    (T (cons fname args))
+    
+    ))
 
 #|
 |
