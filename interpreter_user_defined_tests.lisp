@@ -79,4 +79,14 @@
                          0
                          (+ 1 (count (rest L)))))))
       21)
+    (should-equal
+      (fl-interp
+        '(a (fib 7))
+        '((fib n = (if (< n 2)
+                         n
+                         (+ (fib (- n 1)) (fib (- n 2)))))
+          (count L = (if (null L)
+                         0
+                         (+ 1 (count (rest L)))))))
+      '(a 13))
     ))
