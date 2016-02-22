@@ -89,4 +89,14 @@
                          0
                          (+ 1 (count (rest L)))))))
       '(a 13))
+    (should-equal
+      (fl-interp
+        '(fib (count (1 2 3)))
+        '((fib n = (if (< n 2)
+                         n
+                         (+ (fib (- n 1)) (fib (- n 2)))))
+          (count n = (if (null n)
+                         0
+                         (+ 1 (count (rest n)))))))
+      2)
     ))
